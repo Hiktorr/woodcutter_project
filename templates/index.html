@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <head>
+        <title>Woodcutter - CVRP</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css?v=1.0">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<style>
+	body {
+	}
+	
+	h2 {
+	    color: navy;
+	    text-align:center;
+	}
+	
+	.center1 {
+		text-align: center;
+	}
+	
+	.srodek {
+		display: block;
+		margin-top: 20px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	
+	/* Split the screen in half */
+	.split {
+		float:left;
+		width:50%;
+		overflow:hidden;
+	}
+	</style>
+</head>
+ 
+<body>
+	<div class="container container_my">
+		<h2>CVRP - Woodcutter's project</h2>
+		<form method=POST enctype=multipart/form-data action="{{ url_for('upload') }}" class="center1">
+			<input type="text" name="url" placeholder="Dataset URL" class="split" style="width: 45%; margin-right: 5%; margin-top: 10px; margin-bottom:10px;">
+			<input type=file name=sendFile class="split" style="border-style: solid; padding:10px; width: 45%; margin-left: 5%">
+			<br><br>
+			<input type="submit" class="btn btn-primary">
+		</form>
+		
+		{% if dataSend==True %}
+			<img style="max-height:500px;" src="{{url_for('static',filename='img/plot_img_'+filename+'.png')}}" class="srodek">
+			<div class="split">
+				<h3>Solution info:</h3>
+				<p>Number of customers: {{ customers }}</p>
+				<p>Number of vehicles: {{ vehicles }}</p>
+				<p>Capacity: {{ capacity }}</p>
+				<p>Optimal distance: {{ opt_distance }}</p>
+				<p>
+			</div>
+			<div class="split">
+			<h3>Routes:</h3>
+			{% for element in file_string %}
+				<p>{{ element }}</p>
+			{% endfor %}
+			</div>
+			<!--<br> ODCZYTANY TEKST: {{ result }}-->
+		{% endif %}
+	</div>
+</body>
+ 
+</html>
