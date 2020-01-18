@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from itertools import cycle
 from urllib.request import urlopen
 
+#dorobione ----------
 def get_string_from_website(website):
     url = website
     output = urlopen(url).read()
@@ -16,6 +17,7 @@ def get_string_from_website(website):
 def parse_file(file_string):
     file_string_split = file_string.split('\n')  # --> ['Line 1', 'Line 2', 'Line 3']
     for i in file_string_split:
+        #wszystkie rzeczy potrzebne do skryptu
         if("NAME" in i):
             name = i.split(": ", 1)[1]
         if ("CAPACITY" in i):
@@ -28,6 +30,8 @@ def parse_file(file_string):
             index_demand = file_string_split.index(i) + 1
         if("trucks: " in i):
             trucks = int(i.split("trucks: ", 1)[1][:1])
+        if("Optimal value: " in i ):
+            optimal_value = int(i.split("Optimal value: ", 1)[1][:-1])
     capacity= [capacity] * trucks
     points_string = file_string_split[index_coord:index_coord+dimension]
     demands_string = file_string_split[index_demand:index_demand+dimension]
@@ -39,7 +43,7 @@ def parse_file(file_string):
     for demand in demands_string:
         demand = demand.split(" ")
         demand_int.append((int(demand[1])))
-    return name,capacity,dimension,point_int,demand_int,trucks
+    return name,capacity,dimension,point_int,demand_int,trucks,optimal_value
 
 def compute_distance(x1, y1, x2, y2):
     return abs(x1-x2)+abs(y1-y2)
@@ -70,7 +74,7 @@ def connectpoints2(x,y,routes):
                 y1, y2 = y[route[i]], y[route[i+1]]
                 plt.plot([x1,x2],[y1,y2],color+'-',label='Dupa')
 
-def create_plot(points,routes,vehicle_distance,name):
+def create_plot(points,routes,vehicle_distance,name,ffs, time, lso):
     x = []
     y = []
     trigger = True
@@ -92,11 +96,12 @@ def create_plot(points,routes,vehicle_distance,name):
                     index+=1
                     trigger = False
                 else:
+                    #wykres linia pomiędzy punktami
                     plt.plot([x1, x2], [y1, y2], color + '-')
         trigger = True
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.title(name)
-    plt.savefig('static\img\plot_img_'+name+'.png',bbox_inches='tight')
+    plt.savefig('static\img\plot_img_'+name+'_'+str(ffs)+'_'+str(lso)+'_'+time+'.png',bbox_inches='tight')
     plt.clf()
 
 
@@ -104,7 +109,7 @@ def create_plot(points,routes,vehicle_distance,name):
 def create_data_model(file_string):
     """Stores the data for the problem."""
     data = {}
-    name, capacity, dimension, points, demands, vehicles = parse_file(file_string)
+    name, capacity, dimension, points, demands, vehicles, optimal_value = parse_file(file_string)
     distance_matrix = compute_distance_matrix(points)
     data['distance_matrix'] = distance_matrix
     data['demands'] = demands
@@ -164,7 +169,7 @@ def print_solution(data, manager, routing, assignment):
     # print('Total load of all routes: {}'.format(total_load))
     return vehicle_distance, vehicle_load, text
 
-def cvrp_fun(file_string):
+def cvrp_fun(file_string, ffs, time, lso):
     """Solve the CVRP problem."""
     # Instantiate the data problem.
     data, name = create_data_model(file_string)
@@ -203,8 +208,10 @@ def cvrp_fun(file_string):
         'Capacity')
     # Setting first solution heuristic.
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    search_parameters.first_solution_strategy = (
-        routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
+    #metaheurystyka
+    search_parameters.first_solution_strategy = getattr(routing_enums_pb2.FirstSolutionStrategy, ffs)
+    search_parameters.local_search_metaheuristic = getattr(routing_enums_pb2.LocalSearchMetaheuristic, lso)
+    search_parameters.time_limit.seconds = int(time)
     # Solve the problem.
     assignment = routing.SolveWithParameters(search_parameters)
     # Print solution on console.
@@ -212,5 +219,5 @@ def cvrp_fun(file_string):
         vehicle_distance, vehicle_load, text = print_solution(data, manager, routing, assignment)
     routes = get_routes(manager, routing, assignment, data['num_vehicles'])
     # Display the routes.
-    create_plot(data['points'],routes, vehicle_distance,name)
+    create_plot(data['points'],routes, vehicle_distance,name, ffs, time, lso)
     return vehicle_distance, vehicle_load, text, name

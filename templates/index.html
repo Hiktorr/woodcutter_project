@@ -41,23 +41,49 @@
  
 <body>
 	<div class="container container_my">
-		<h2>CVRP - Woodcutter's project</h2>
+		<h2>CVRP - project</h2>
 		<form method=POST enctype=multipart/form-data action="{{ url_for('upload') }}" class="center1">
 			<input type="text" name="url" placeholder="Dataset URL" class="split" style="width: 45%; margin-right: 5%; margin-top: 10px; margin-bottom:10px;">
 			<input type=file name=sendFile class="split" style="border-style: solid; padding:10px; width: 45%; margin-left: 5%">
-			<br><br>
+			<br><br><br>
+            Local Search Options:
+            <select name=local_search_options method="GET" action="/">
+                {% for lso in local_search_options %}
+                    <option value= "{{ lso }}" SELECTED>{{ lso }}</option>"
+                {% endfor %}
+                <option selected value="AUTOMATIC"> -- select an option -- </option>
+            </select>
+            First Solution Strategies:
+            <select name=first_solution_strategies method="GET" action="/">
+                {% for ffs in first_solution_strategies %}
+                    <option value= "{{ ffs }}" SELECTED>{{ ffs }}</option>"
+                {% endfor %}
+                <option selected value="AUTOMATIC"> -- select an option -- </option>
+            </select>
+            Time:
+            <select name=times method="GET" action="/">
+                {% for time in times %}
+                    <option value= "{{ time.value }}" SELECTED>{{ time.name }}</option>"
+                {% endfor %}
+                <option selected value="30"> -- select an option -- </option>
+            </select>
+
+            <br><br>
 			<input type="submit" class="btn btn-primary">
 		</form>
-		
 		{% if dataSend==True %}
-			<img style="max-height:500px;" src="{{url_for('static',filename='img/plot_img_'+filename+'.png')}}" class="srodek">
+			<img style="max-height:500px;" src="{{url_for('static',filename='img/plot_img_'+filename+'_'+ffs+'_'+lso+'_'+time+'.png')}}" class="srodek">
 			<div class="split">
 				<h3>Solution info:</h3>
+                <p>Local Search Options: {{ lso }}</p>
+                <p>First Solution Strategy: {{  ffs }}</p>
+                <p>Time constraint: {{ time }}</p>
 				<p>Number of customers: {{ customers }}</p>
 				<p>Number of vehicles: {{ vehicles }}</p>
 				<p>Capacity: {{ capacity }}</p>
-				<p>Optimal distance: {{ opt_distance }}</p>
-				<p>
+				<p>Distance: {{ opt_distance }}</p>
+                <p>Optimal distance: {{ optimal_value }}</p>
+                <p>Percentage change: {{ change_percent }}</p>
 			</div>
 			<div class="split">
 			<h3>Routes:</h3>
