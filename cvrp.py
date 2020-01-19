@@ -16,8 +16,12 @@ def get_string_from_website(website):
 
 def parse_file(file_string):
     file_string_split = file_string.split('\n')  # --> ['Line 1', 'Line 2', 'Line 3']
+    print('dupa')
+    print(file_string_split[5])
     for i in file_string_split:
         #wszystkie rzeczy potrzebne do skryptu
+        i=i.upper()
+        print(i)
         if("NAME" in i):
             name = i.split(": ", 1)[1]
         if ("CAPACITY" in i):
@@ -28,10 +32,11 @@ def parse_file(file_string):
             index_coord = file_string_split.index(i) + 1
         if("DEMAND_SECTION" in i):
             index_demand = file_string_split.index(i) + 1
-        if("trucks: " in i):
-            trucks = int(i.split("trucks: ", 1)[1][:1])
-        if("Optimal value: " in i ):
-            optimal_value = int(i.split("Optimal value: ", 1)[1][:-1])
+        if("TRUCKS: " in i):
+            trucks = int(i.split("TRUCKS: ", 1)[1][:1])
+        if("VALUE: " in i ):
+            optimal_value = int(i.split("VALUE: ", 1)[1][:-1])
+
     capacity= [capacity] * trucks
     points_string = file_string_split[index_coord:index_coord+dimension]
     demands_string = file_string_split[index_demand:index_demand+dimension]
